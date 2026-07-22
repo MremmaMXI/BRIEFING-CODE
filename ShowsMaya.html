@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shows Maya</title>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+  <style>
+    :root {
+      --maya-color: #184f5b;
+      --lindo-color: #32a69a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      font-family: 'Segoe UI', sans-serif;
+      overflow: hidden;
+    }
+
+    /* ── BACKGROUND SLIDER ── */
+    .bg-slider {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+    }
+
+    .bg-slide {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+      transition: opacity 1.2s ease-in-out;
+    }
+
+    .bg-slide.active {
+      opacity: 1;
+    }
+
+    .bg-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 30, 40, 0.55);
+      z-index: 1;
+    }
+
+    /* ── MAIN LAYOUT ── */
+    .main-wrapper {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 20px 10px 30px;
+      overflow-y: auto;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: rgba(10, 28, 38, 0.93);
+      border: 1px solid rgba(50, 166, 154, 0.25);
+      border-radius: 16px;
+      padding: 24px 22px 22px;
+      width: 480px;
+      max-width: 100%;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+    }
+
+    /* ── HEADER ── */
+    .card-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .card-title {
+      font-family: 'Century Gothic', 'Trebuchet MS', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: #c9ecf4;
+      text-align: center;
+    }
+
+    /* ── LANGUAGE SELECTOR ── */
+    .lang-row {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .btn-lang {
+      padding: 6px 14px;
+      border: 1px solid rgba(50, 166, 154, 0.35);
+      border-radius: 6px;
+      background: rgba(24, 79, 91, 0.35);
+      color: #8fcfda;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      transition: transform 0.45s cubic-bezier(0.34, 1.8, 0.64, 1), box-shadow 0.35s ease, background 0.25s ease;
+    }
+
+    .btn-lang:hover {
+      background: rgba(50, 166, 154, 0.3);
+      color: #c9ecf4;
+      border-color: rgba(50, 166, 154, 0.7);
+      transform: scale(1.12) translateY(-4px);
+      box-shadow: 0 14px 30px rgba(0,0,0,0.18);
+    }
+
+    .btn-lang.active {
+      background: var(--maya-color);
+      color: #ffffff;
+      border-color: var(--lindo-color);
+    }
+
+    /* ── SORTABLE BOXES ── */
+    .sortable-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .input-box {
+      background: #ffffff;
+      border: 1.5px solid #ccc;
+      border-radius: 10px;
+      padding: 12px 14px;
+      cursor: grab;
+      transition: border-color 0.15s;
+    }
+
+    .input-box:active {
+      cursor: grabbing;
+    }
+
+    .input-box:hover {
+      border-color: #bdbdbd;
+    }
+
+    .sortable-chosen {
+      border-color: var(--lindo-color) !important;
+      box-shadow: 0 4px 16px rgba(50, 166, 154, 0.2);
+    }
+
+    .box-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      color: #111111;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .drag-handle {
+      color: #444444;
+      font-size: 13px;
+      cursor: grab;
+    }
+
+    .box-input {
+      width: 100%;
+      background: #ffffff;
+      border: 1.5px solid #ccc;
+      border-radius: 8px;
+      color: #111111;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 13px;
+      padding: 10px 12px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .box-input:focus {
+      border-color: var(--lindo-color);
+    }
+
+    .box-input::placeholder {
+      color: #666666;
+      font-style: italic;
+    }
+
+    .box-textarea {
+      width: 100%;
+      background: #ffffff;
+      border: 1.5px solid #ccc;
+      border-radius: 8px;
+      color: #111111;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 13px;
+      padding: 10px 12px;
+      outline: none;
+      resize: vertical;
+      transition: border-color 0.15s;
+      line-height: 1.5;
+    }
+
+    .box-textarea:focus {
+      border-color: var(--lindo-color);
+    }
+
+    .box-textarea::placeholder {
+      color: #666666;
+      font-style: italic;
+    }
+
+    /* ── COPY BUTTON ── */
+    .btn-copy,
+    .btn-copiar {
+      width: 100%;
+      padding: 14px;
+      background: #184f5b;
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: transform 0.45s cubic-bezier(0.34, 1.8, 0.64, 1), background 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .btn-copy:hover,
+    .btn-copiar:hover {
+      transform: scale(1.04) translateY(-3px);
+      box-shadow: 0 16px 36px rgba(0,0,0,0.2);
+    }
+
+    .btn-copy:active,
+    .btn-copiar:active {
+      transform: scale(0.98);
+    }
+
+    .btn-copiar.copiado {
+      background: #00BFFF;
+      transform: scale(1.08);
+      box-shadow: 0 0 22px rgba(0, 191, 255, 0.8), 0 0 50px rgba(0, 191, 255, 0.5), 0 12px 24px rgba(0, 191, 255, 0.35);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Slider -->
+  <div class="bg-slider" id="bgSlider">
+    <div class="bg-slide active" style="background-image: url('https://lh3.googleusercontent.com/d/1yiLtxHlxCx_RoiZq3Dqo7cBQ8MJ04VhP')"></div>
+    <div class="bg-slide" style="background-image: url('https://lh3.googleusercontent.com/d/1xMkC2A9KbPMXq7s2RGBxIalDqk6FnCpk')"></div>
+    <div class="bg-slide" style="background-image: url('https://lh3.googleusercontent.com/d/1nHfPpQm9mM4OlzDkC7nLBoFDc6A7TaR2')"></div>
+  </div>
+  <div class="bg-overlay"></div>
+
+  <!-- Main Card -->
+  <div class="main-wrapper">
+    <div class="card">
+
+      <!-- Header -->
+      <div class="card-header">
+        <div class="card-title">SHOWS MAYA</div>
+      </div>
+
+      <!-- Language Selector -->
+      <div class="lang-row">
+        <button class="btn-lang active" data-lang="es">Español</button>
+        <button class="btn-lang" data-lang="en">Inglés</button>
+        <button class="btn-lang" data-lang="fr">Francés</button>
+        <button class="btn-lang" data-lang="de">Alemán</button>
+      </div>
+
+      <!-- Sortable Input Boxes -->
+      <div class="sortable-list" id="sortableList">
+
+        <div class="input-box" data-key="show">
+          <div class="box-label">
+            <span class="drag-handle">⠿</span>
+            Nombre del Show
+          </div>
+          <input class="box-input" id="inputShow" type="text" placeholder="Ej: 80's Show" autocomplete="off" />
+        </div>
+
+        <div class="input-box" data-key="hora">
+          <div class="box-label">
+            <span class="drag-handle">⠿</span>
+            Hora del Show
+          </div>
+          <input class="box-input" id="inputHora" type="text" placeholder="Ej: 9:00 pm" autocomplete="off" />
+        </div>
+
+        <div class="input-box" data-key="actividades">
+          <div class="box-label">
+            <span class="drag-handle">⠿</span>
+            Actividades
+          </div>
+          <textarea class="box-textarea" id="inputActividades" rows="6"
+            placeholder="Pega aquí la lista de actividades…"></textarea>
+        </div>
+
+      </div>
+
+      <!-- Copy Button -->
+      <button class="btn-copy btn-copiar" id="btnCopy">COPIAR MENSAJE</button>
+
+    </div>
+  </div>
+
+  <script>
+    // ── LANGUAGE ──
+    var currentLang = 'es';
+
+    document.querySelectorAll('.btn-lang').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.btn-lang').forEach(function(b) { b.classList.remove('active'); });
+        this.classList.add('active');
+        currentLang = this.getAttribute('data-lang');
+      });
+    });
+
+    // ── MESSAGES ──
+    var templates = {
+      es: "Estimado Huésped,\n\nLe saluda su concierge del Departamento de Guest Service. Esperamos que esté disfrutando de su estancia.\n\nLe invitamos a nuestro show: {show} en el teatro a las {hora}. Además, tenemos una variedad de actividades programadas:\n\n{actividades}\n\nSerá un placer contar con su presencia en estos eventos exclusivos.\n\nAtentamente,\nDepartamento de Guest Service.",
+      en: "Dear Guest,\n\nThis is your concierge from the Guest Service Department. We hope you are having an enjoyable stay.\n\nWe would like to invite you to our show: {show} at the theater at {hora}. We also have a variety of activities scheduled:\n\n{actividades}\n\nWe would be delighted to have you join us for these exclusive events.\n\nBest regards,\nGuest Service Department.",
+      fr: "Cher Client,\n\nVotre concierge du Département Guest Service vous contacte. Nous espérons que vous profitez pleinement de votre séjour.\n\nNous vous invitons à notre show : {show} au théâtre à {hora}. Nous avons également une variété d'activités programmées :\n\n{actividades}\n\nNous serions ravis de vous accueillir lors de ces événements exclusifs.\n\nCordialement,\nDépartement Guest Service.",
+      de: "Lieber Gast,\n\nIhr Concierge vom Guest Service Department meldet sich bei Ihnen. Wir hoffen, dass Sie Ihren Aufenthalt genießen.\n\nWir möchten Sie herzlich zu unserem Show: {show} im Theater um {hora} einladen. Außerdem haben wir eine Vielzahl von Aktivitäten geplant:\n\n{actividades}\n\nWir würden uns freuen, Sie bei diesen exklusiven Veranstaltungen begrüßen zu dürfen.\n\nMit freundlichen Grüßen,\nGuest Service Department."
+    };
+
+    // ── COPY BUTTON ──
+    document.getElementById('btnCopy').addEventListener('click', function() {
+      var show = document.getElementById('inputShow').value.trim() || '[nombre del show]';
+      var hora = document.getElementById('inputHora').value.trim() || '[hora]';
+      var actividades = document.getElementById('inputActividades').value.trim() || '[actividades]';
+
+      var msg = templates[currentLang]
+        .replace(/\{show\}/g, show)
+        .replace(/\{hora\}/g, hora)
+        .replace(/\{actividades\}/g, actividades);
+
+      var btn = this;
+
+      navigator.clipboard.writeText(msg).then(function() {
+        showCopied(btn);
+      }).catch(function() {
+        // Fallback
+        var ta = document.createElement('textarea');
+        ta.value = msg;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        try { document.execCommand('copy'); } catch(e) {}
+        document.body.removeChild(ta);
+        showCopied(btn);
+      });
+    });
+
+    function showCopied(btn) {
+      btn.textContent = '¡COPIADO!';
+      btn.classList.add('copiado');
+      setTimeout(function() {
+        btn.classList.remove('copiado');
+        btn.textContent = 'COPIAR MENSAJE';
+      }, 1400);
+    }
+
+    // ── SORTABLEJS ──
+    Sortable.create(document.getElementById('sortableList'), {
+      animation: 150,
+      handle: '.drag-handle',
+      ghostClass: 'sortable-chosen'
+    });
+
+    // ── BACKGROUND SLIDER ──
+    var slides = document.querySelectorAll('.bg-slide');
+    var currentSlide = 0;
+
+    setInterval(function() {
+      slides[currentSlide].classList.remove('active');
+      currentSlide = (currentSlide + 1) % slides.length;
+      slides[currentSlide].classList.add('active');
+    }, 5000);
+  </script>
+</body>
+</html>

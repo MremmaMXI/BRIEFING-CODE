@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #FCFCE3;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 60px;
+      width: 100%;
+      max-width: 1200px;
+      padding: 40px;
+    }
+
+    .left,
+    .right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 320px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #0A8274;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .btn {
+      cursor: pointer;
+      transition: all 0.15s ease;
+      background-color: #0A8274;
+      color: #ffffff;
+      padding: 18px 48px;
+      border-radius: 14px;
+      border: none;
+      border-bottom: 4px solid #086d61;
+      font-size: 16px;
+      font-weight: 700;
+      text-transform: uppercase;
+      width: 260px;
+      text-align: center;
+      margin-bottom: 18px;
+      outline: none;
+    }
+
+    .btn:hover {
+      filter: brightness(1.18);
+      transform: scale(1.02);
+    }
+
+    .btn:active {
+      border-bottom: 2px solid #086d61;
+      filter: brightness(0.92);
+      transform: translateY(2px);
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 14px;
+      box-shadow: 0 10px 30px rgba(10, 130, 116, 0.15);
+      cursor: grab;
+      transition: filter 0.2s ease, transform 0.2s ease;
+      max-width: 460px;
+      width: 100%;
+    }
+
+    .card img {
+      display: block;
+      width: 100%;
+      border-radius: 16px;
+      pointer-events: none;
+      -webkit-user-drag: none;
+    }
+
+    .card:hover {
+      filter: brightness(1.1);
+      transform: scale(1.01);
+    }
+
+    .card:active {
+      cursor: grabbing;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="left">
+      <div class="section-title">COPIA Y PEGA EL MENSAJE</div>
+      <button class="btn" onclick="copyText('en', this)">INGLES</button>
+      <button class="btn" onclick="copyText('es', this)">ESPAÑOL</button>
+    </div>
+
+    <div class="right">
+      <div class="section-title">ARRASTRA LA IMAGEN Y SUELTA</div>
+      <div class="card" draggable="true" id="flyerCard">
+        <img
+          id="flyerImg"
+          src="https://lh3.googleusercontent.com/d/1aQz3pkG9wEWtK5YUkE3Zm40Gm8kBSi7p"
+          alt="Flyer Sunset Cocktail"
+        />
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const texts = {
+      en: `Dear Guest, Looking for the perfect Friday plan? 🌅
+
+This Friday, July 17th, we invite you to our exclusive Sunset Cocktail experience at JOIA Paraíso. Join us to enjoy premium drinks and the best golden hour views of the resort. 🥂
+We would be happy to receive you!`,
+
+      es: `Estimado huésped, ¿Busca el plan perfecto para el viernes? 🌅
+
+Este viernes 17 de julio, lo invitamos a nuestra exclusiva experiencia de cócteles al atardecer en JOIA Paraíso. Acompáñenos a disfrutar de bebidas premium y las mejores vistas del resort al atardecer. 🥂
+¡Nos encantaría recibirlos!`
+    };
+
+    async function copyText(lang, btn) {
+      const original = btn.textContent;
+
+      try {
+        await navigator.clipboard.writeText(texts[lang]);
+      } catch (err) {
+        const ta = document.createElement('textarea');
+        ta.value = texts[lang];
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+
+      btn.textContent = '¡COPIADO!';
+      setTimeout(function () {
+        btn.textContent = original;
+      }, 1200);
+    }
+
+    const card = document.getElementById('flyerCard');
+    const img = document.getElementById('flyerImg');
+
+    card.addEventListener('dragstart', function (e) {
+      e.dataTransfer.setData('text/uri-list', img.src);
+      e.dataTransfer.setData('text/plain', img.src);
+      e.dataTransfer.effectAllowed = 'copy';
+    });
+  </script>
+</body>
+</html>
