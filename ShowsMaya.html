@@ -10,15 +10,43 @@
       --maya-color: #184f5b;
       --lindo-color: #32a69a;
       --selected-color: #0dc6d4;
+      --sb-track-color: #232E33;
+      --sb-thumb-color: #6BAF8D;
+      --sb-size: 8px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    html, body {
+    html {
+      height: 100%;
+      width: 100%;
+    }
+
+    body {
       height: 100%;
       width: 100%;
       font-family: 'Segoe UI', sans-serif;
-      overflow: hidden;
+      /* Sin overflow hidden: el body puede scrollear si el contenido crece */
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    /* ── SCROLLBAR CUSTOM (solo visible cuando hay overflow) ── */
+    body::-webkit-scrollbar {
+      width: var(--sb-size);
+    }
+    body::-webkit-scrollbar-track {
+      background: var(--sb-track-color);
+      border-radius: 3px;
+    }
+    body::-webkit-scrollbar-thumb {
+      background: var(--sb-thumb-color);
+      border-radius: 3px;
+    }
+    @supports not selector(::-webkit-scrollbar) {
+      body {
+        scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
+      }
     }
 
     /* ── BACKGROUND SLIDER ── */
@@ -57,7 +85,6 @@
       align-items: flex-start;
       min-height: 100vh;
       padding: 20px 10px 30px;
-      overflow-y: auto;
     }
 
     /* ── CARD ── */
@@ -290,8 +317,7 @@
       transition: transform 0.45s cubic-bezier(0.34, 1.8, 0.64, 1),
                   background 0.3s ease,
                   box-shadow 0.3s ease,
-                  padding 0.35s cubic-bezier(0.34, 1.8, 0.64, 1),
-                  min-width 0.35s cubic-bezier(0.34, 1.8, 0.64, 1);
+                  padding 0.35s cubic-bezier(0.34, 1.8, 0.64, 1);
       white-space: nowrap;
       overflow: hidden;
     }
@@ -420,23 +446,16 @@
 
     var nombreSeleccionado = '';
 
-    // Intentar cargar desde servidor; si falla usar fallback
     function cargarRepresentantes() {
       try {
         google.script.run
           .withSuccessHandler(function(data) {
-            if (data && data.length > 0) {
-              representantes = data;
-            }
+            if (data && data.length > 0) representantes = data;
             renderBotones();
           })
-          .withFailureHandler(function() {
-            renderBotones();
-          })
+          .withFailureHandler(function() { renderBotones(); })
           .getRepresentantes();
-      } catch(e) {
-        renderBotones();
-      }
+      } catch(e) { renderBotones(); }
     }
 
     function renderBotones() {
@@ -447,50 +466,39 @@
         btn.className = 'btn-concierge';
         btn.textContent = rep.etiqueta;
         btn.setAttribute('data-nombre', rep.nombre);
-        btn.addEventListener('click', function() {
-          seleccionarConcierge(btn, rep.nombre);
-        });
+        btn.addEventListener('click', function() { seleccionarConcierge(btn, rep.nombre); });
         grid.appendChild(btn);
       });
     }
 
     function seleccionarConcierge(btnClicked, nombre) {
-      var todos = document.querySelectorAll('.btn-concierge');
-      todos.forEach(function(b) {
+      document.querySelectorAll('.btn-concierge').forEach(function(b) {
         if (b !== btnClicked && b.classList.contains('selected')) {
           b.classList.remove('selected');
-          // rebote de deselección
           b.style.transform = 'scale(1.0)';
           setTimeout(function() { b.style.transform = ''; }, 10);
         }
       });
-
       if (btnClicked.classList.contains('selected')) {
-        // ya estaba seleccionado → deseleccionar
         btnClicked.classList.remove('selected');
         nombreSeleccionado = '';
       } else {
         btnClicked.classList.add('selected');
         nombreSeleccionado = nombre;
-        // rebote de selección
         btnClicked.style.transform = 'scale(1.18) translateY(-5px)';
         setTimeout(function() { btnClicked.style.transform = ''; }, 400);
       }
     }
 
     function deseleccionarTodos() {
-      document.querySelectorAll('.btn-concierge.selected').forEach(function(b) {
-        b.classList.remove('selected');
-      });
+      document.querySelectorAll('.btn-concierge.selected').forEach(function(b) { b.classList.remove('selected'); });
       nombreSeleccionado = '';
     }
 
-    // Inicializar botones
     cargarRepresentantes();
 
     // ── LANGUAGE ──
     var currentLang = 'es';
-
     document.querySelectorAll('.btn-lang').forEach(function(btn) {
       btn.addEventListener('click', function() {
         document.querySelectorAll('.btn-lang').forEach(function(b) { b.classList.remove('active'); });
@@ -499,33 +507,31 @@
       });
     });
 
-    // ── HELPER: añadir bullet • a cada línea no vacía ──
+    // ── BULLETS ──
     function agregarBullets(texto) {
       return texto.split('\n').map(function(linea) {
         var l = linea.trim();
         if (!l) return '';
-        // si ya empieza con bullet no doblar
-        if (l.charAt(0) === '•') return l;
-        return '• ' + l;
+        if (l.charAt(0) === '\u2022') return l;
+        return '\u2022 ' + l;
       }).filter(function(l, i, arr) {
-        // eliminar líneas vacías consecutivas pero conservar contenido
         return l !== '' || (i > 0 && arr[i-1] !== '');
       }).join('\n');
     }
 
-    // ── MESSAGES ──
+    // ── TEMPLATES ──
     var templates = {
       es: function(nombre, show, lugar, hora, actividades, showUpper) {
-        return "Estimado Huésped,\n\n" +
+        return "Estimado Hu\u00e9sped,\n\n" +
           "Le saluda su concierge " + nombre + " del Departamento de Guest Service. " +
-          "Esperamos que esté disfrutando de su estancia.\n\n" +
+          "Esperamos que est\u00e9 disfrutando de su estancia.\n\n" +
           "Le invitamos a nuestro show: " + show + " en " + lugar + " a las " + hora + ". " +
-          "Además, tenemos una variedad de actividades programadas que tendrán lugar en el Bar Kukulcán:\n\n" +
+          "Adem\u00e1s, tenemos una variedad de actividades programadas que tendr\u00e1n lugar en el Bar Kukukl\u00e1n:\n\n" +
           actividades + "\n\n" +
           "--------------------------------------------\n\n" +
           "Actividad principal en " + lugar + " a las " + hora + ":\n\n" +
-          "• " + showUpper + "\n\n" +
-          "Será un placer contar con su presencia en estos eventos exclusivos.\n\n" +
+          "\u2022 " + showUpper + "\n\n" +
+          "Ser\u00e1 un placer contar con su presencia en estos eventos exclusivos.\n\n" +
           "Atentamente,\n" +
           "Departamento de Guest Service.";
       },
@@ -534,41 +540,41 @@
           "This is your concierge " + nombre + " from the Guest Service Department. " +
           "We hope you are enjoying your stay.\n\n" +
           "We would like to invite you to our show: " + show + " at " + lugar + " at " + hora + ". " +
-          "Additionally, we have a variety of activities scheduled at Bar Kukulcán:\n\n" +
+          "Additionally, we have a variety of activities scheduled at Bar Kukuk\u00f3n:\n\n" +
           actividades + "\n\n" +
           "--------------------------------------------\n\n" +
           "Main activity at " + lugar + " at " + hora + ":\n\n" +
-          "• " + showUpper + "\n\n" +
+          "\u2022 " + showUpper + "\n\n" +
           "It will be a pleasure to have you at these exclusive events.\n\n" +
           "Sincerely,\n" +
           "Guest Service Department.";
       },
       fr: function(nombre, show, lugar, hora, actividades, showUpper) {
         return "Cher Client,\n\n" +
-          "Votre concierge " + nombre + " du Département Guest Service vous contacte. " +
-          "Nous espérons que vous profitez pleinement de votre séjour.\n\n" +
-          "Nous vous invitons à notre show : " + show + " au " + lugar + " à " + hora + ". " +
-          "De plus, nous avons une variété d'activités programmées au Bar Kukulcán :\n\n" +
+          "Votre concierge " + nombre + " du D\u00e9partement Guest Service vous contacte. " +
+          "Nous esp\u00e9rons que vous profitez pleinement de votre s\u00e9jour.\n\n" +
+          "Nous vous invitons \u00e0 notre show : " + show + " au " + lugar + " \u00e0 " + hora + ". " +
+          "De plus, nous avons une vari\u00e9t\u00e9 d'activit\u00e9s programm\u00e9es au Bar Kukulc\u00e1n :\n\n" +
           actividades + "\n\n" +
           "--------------------------------------------\n\n" +
-          "Activité principale au " + lugar + " à " + hora + " :\n\n" +
-          "• " + showUpper + "\n\n" +
-          "Ce sera un plaisir de vous accueillir lors de ces événements exclusifs.\n\n" +
+          "Activit\u00e9 principale au " + lugar + " \u00e0 " + hora + " :\n\n" +
+          "\u2022 " + showUpper + "\n\n" +
+          "Ce sera un plaisir de vous accueillir lors de ces \u00e9v\u00e9nements exclusifs.\n\n" +
           "Cordialement,\n" +
-          "Département Guest Service.";
+          "D\u00e9partement Guest Service.";
       },
       de: function(nombre, show, lugar, hora, actividades, showUpper) {
         return "Lieber Gast,\n\n" +
           "Ihr Concierge " + nombre + " vom Guest Service Department meldet sich bei Ihnen. " +
-          "Wir hoffen, dass Sie Ihren Aufenthalt genießen.\n\n" +
-          "Wir möchten Sie herzlich zu unserer Show einladen: " + show + " im " + lugar + " um " + hora + ". " +
-          "Außerdem haben wir eine Vielzahl von Aktivitäten in der Bar Kukulcán geplant:\n\n" +
+          "Wir hoffen, dass Sie Ihren Aufenthalt genie\u00dfen.\n\n" +
+          "Wir m\u00f6chten Sie herzlich zu unserer Show einladen: " + show + " im " + lugar + " um " + hora + ". " +
+          "Au\u00dferdem haben wir eine Vielzahl von Aktivit\u00e4ten in der Bar Kukulc\u00e1n geplant:\n\n" +
           actividades + "\n\n" +
           "--------------------------------------------\n\n" +
-          "Hauptaktivität im " + lugar + " um " + hora + ":\n\n" +
-          "• " + showUpper + "\n\n" +
-          "Es wird uns eine Freude sein, Sie bei diesen exklusiven Veranstaltungen begrüßen zu dürfen.\n\n" +
-          "Mit freundlichen Grüßen,\n" +
+          "Hauptaktivit\u00e4t im " + lugar + " um " + hora + ":\n\n" +
+          "\u2022 " + showUpper + "\n\n" +
+          "Es wird uns eine Freude sein, Sie bei diesen exklusiven Veranstaltungen begr\u00fc\u00dfen zu d\u00fcrfen.\n\n" +
+          "Mit freundlichen Gr\u00fc\u00dfen,\n" +
           "Guest Service Department.";
       }
     };
@@ -580,14 +586,10 @@
       var lugar     = document.getElementById('inputLugar').value.trim()       || '[lugar]';
       var hora      = document.getElementById('inputHora').value.trim()        || '[hora]';
       var actRaw    = document.getElementById('inputActividades').value.trim() || '[actividades]';
-
       var actividades = agregarBullets(actRaw);
       var showUpper   = show.toUpperCase();
-
       var msg = templates[currentLang](nombre, show, lugar, hora, actividades, showUpper);
-
       var btn = this;
-
       navigator.clipboard.writeText(msg).then(function() {
         mostrarCopiado(btn);
       }).catch(function() {
@@ -596,8 +598,7 @@
         ta.style.position = 'fixed';
         ta.style.opacity = '0';
         document.body.appendChild(ta);
-        ta.focus();
-        ta.select();
+        ta.focus(); ta.select();
         try { document.execCommand('copy'); } catch(e) {}
         document.body.removeChild(ta);
         mostrarCopiado(btn);
@@ -605,17 +606,12 @@
     });
 
     function mostrarCopiado(btn) {
-      // Deseleccionar concierge
       deseleccionarTodos();
-
-      // Contraer a "¡COPIADO!" con rebote
-      btn.textContent = '¡COPIADO!';
+      btn.textContent = '\u00a1COPIADO!';
       btn.classList.add('copiado');
-
       setTimeout(function() {
         btn.classList.remove('copiado');
         btn.textContent = 'COPIAR MENSAJE';
-        // rebote de regreso
         btn.style.transform = 'scale(1.06) translateY(-2px)';
         setTimeout(function() { btn.style.transform = ''; }, 400);
       }, 1400);
@@ -631,7 +627,6 @@
     // ── BACKGROUND SLIDER ──
     var slides = document.querySelectorAll('.bg-slide');
     var currentSlide = 0;
-
     setInterval(function() {
       slides[currentSlide].classList.remove('active');
       currentSlide = (currentSlide + 1) % slides.length;
