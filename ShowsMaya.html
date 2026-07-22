@@ -26,12 +26,11 @@
       height: 100%;
       width: 100%;
       font-family: 'Segoe UI', sans-serif;
-      /* Sin overflow hidden: el body puede scrollear si el contenido crece */
       overflow-y: auto;
       overflow-x: hidden;
     }
 
-    /* ── SCROLLBAR CUSTOM (solo visible cuando hay overflow) ── */
+    /* ── SCROLLBAR CUSTOM ── */
     body::-webkit-scrollbar {
       width: var(--sb-size);
     }
@@ -238,9 +237,9 @@
     }
 
     .box-label {
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 2px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
       color: #111111;
       text-transform: uppercase;
       margin-bottom: 6px;
@@ -365,7 +364,7 @@
 
       <!-- Language Selector -->
       <div class="lang-row">
-        <button class="btn-lang active" data-lang="es">Español</button>
+        <button class="btn-lang" data-lang="es">Español</button>
         <button class="btn-lang" data-lang="en">Inglés</button>
         <button class="btn-lang" data-lang="fr">Francés</button>
         <button class="btn-lang" data-lang="de">Alemán</button>
@@ -496,13 +495,21 @@
     }
 
     function deseleccionarTodos() {
+      // Deseleccionar concierge
       document.querySelectorAll('.btn-concierge.selected').forEach(function(b) { b.classList.remove('selected'); });
       nombreSeleccionado = '';
+      // Deseleccionar idioma
+      document.querySelectorAll('.btn-lang.active').forEach(function(b) {
+        b.classList.remove('active');
+        b.style.transform = 'scale(1.0)';
+        setTimeout(function() { b.style.transform = ''; }, 10);
+      });
+      currentLang = 'es'; // mantener idioma funcional aunque no se vea seleccionado
     }
 
     cargarRepresentantes();
 
-    // ── LANGUAGE ── igual que concierge: glow, rebote, siempre uno activo
+    // ── LANGUAGE ── arranca sin ninguno activo, se puede deseleccionar
     var currentLang = 'es';
     document.querySelectorAll('.btn-lang').forEach(function(btn) {
       btn.addEventListener('click', function() {
@@ -512,10 +519,16 @@
           prev.style.transform = 'scale(1.0)';
           setTimeout(function() { prev.style.transform = ''; }, 10);
         }
-        btn.classList.add('active');
-        currentLang = btn.getAttribute('data-lang');
-        btn.style.transform = 'scale(1.18) translateY(-5px)';
-        setTimeout(function() { btn.style.transform = ''; }, 400);
+        if (btn.classList.contains('active')) {
+          // deseleccionar si se vuelve a clickear el mismo
+          btn.classList.remove('active');
+          currentLang = 'es'; // fallback silencioso
+        } else {
+          btn.classList.add('active');
+          currentLang = btn.getAttribute('data-lang');
+          btn.style.transform = 'scale(1.18) translateY(-5px)';
+          setTimeout(function() { btn.style.transform = ''; }, 400);
+        }
       });
     });
 
