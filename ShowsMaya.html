@@ -17,239 +17,407 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    html { height: 100%; width: 100%; }
+    html {
+      height: 100%;
+      width: 100%;
+    }
 
     body {
       height: 100%;
       width: 100%;
       font-family: 'Segoe UI', sans-serif;
+      /* Sin overflow hidden: el body puede scrollear si el contenido crece */
       overflow-y: auto;
       overflow-x: hidden;
     }
 
-    body::-webkit-scrollbar { width: var(--sb-size); }
-    body::-webkit-scrollbar-track { background: var(--sb-track-color); border-radius: 3px; }
-    body::-webkit-scrollbar-thumb { background: var(--sb-thumb-color); border-radius: 3px; }
+    /* ── SCROLLBAR CUSTOM (solo visible cuando hay overflow) ── */
+    body::-webkit-scrollbar {
+      width: var(--sb-size);
+    }
+    body::-webkit-scrollbar-track {
+      background: var(--sb-track-color);
+      border-radius: 3px;
+    }
+    body::-webkit-scrollbar-thumb {
+      background: var(--sb-thumb-color);
+      border-radius: 3px;
+    }
     @supports not selector(::-webkit-scrollbar) {
-      body { scrollbar-color: var(--sb-thumb-color) var(--sb-track-color); }
+      body {
+        scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
+      }
     }
 
     /* ── BACKGROUND SLIDER ── */
-    .bg-slider { position: fixed; inset: 0; z-index: 0; }
-    .bg-slide {
-      position: absolute; inset: 0;
-      background-size: cover; background-position: center;
-      opacity: 0; transition: opacity 1.2s ease-in-out;
+    .bg-slider {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
     }
-    .bg-slide.active { opacity: 1; }
-    .bg-overlay { position: fixed; inset: 0; background: rgba(10,30,40,0.55); z-index: 1; }
+
+    .bg-slide {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+      transition: opacity 1.2s ease-in-out;
+    }
+
+    .bg-slide.active {
+      opacity: 1;
+    }
+
+    .bg-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 30, 40, 0.55);
+      z-index: 1;
+    }
 
     /* ── MAIN LAYOUT ── */
     .main-wrapper {
-      position: relative; z-index: 2;
-      display: flex; justify-content: center; align-items: flex-start;
-      min-height: 100vh; padding: 20px 10px 30px;
+      position: relative;
+      z-index: 2;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 20px 10px 30px;
     }
 
     /* ── CARD ── */
     .card {
-      background: rgba(10,28,38,0.93);
-      border: 1px solid rgba(50,166,154,0.25);
-      border-radius: 16px; padding: 24px 22px 22px;
-      width: 500px; max-width: 100%;
-      box-shadow: 0 12px 40px rgba(0,0,0,0.55);
+      background: rgba(10, 28, 38, 0.93);
+      border: 1px solid rgba(50, 166, 154, 0.25);
+      border-radius: 16px;
+      padding: 24px 22px 22px;
+      width: 500px;
+      max-width: 100%;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
     }
 
     /* ── HEADER ── */
-    .card-header { display: flex; flex-direction: column; align-items: center; margin-bottom: 14px; }
-    .card-title {
-      font-family: 'Century Gothic','Trebuchet MS',sans-serif;
-      font-size: 18px; font-weight: 700; letter-spacing: 5px;
-      text-transform: uppercase; color: #c9ecf4; text-align: center;
+    .card-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 14px;
     }
 
-    /* ── LANGUAGE ROW ── */
+    .card-title {
+      font-family: 'Century Gothic', 'Trebuchet MS', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: #c9ecf4;
+      text-align: center;
+    }
+
+    /* ── LANGUAGE SELECTOR ── */
     .lang-row {
-      display: flex; gap: 6px; justify-content: center; margin-bottom: 14px;
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      margin-bottom: 14px;
     }
 
     .btn-lang {
       padding: 6px 14px;
-      border: 1.5px solid rgba(50,166,154,0.4);
+      border: 1.5px solid rgba(50, 166, 154, 0.4);
       border-radius: 8px;
-      background: rgba(24,79,91,0.4);
+      background: rgba(24, 79, 91, 0.4);
       color: #8fcfda;
-      font-size: 11px; font-weight: 600; letter-spacing: 1.5px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
       cursor: pointer;
-      transition: transform 0.45s cubic-bezier(0.34,1.8,0.64,1),
+      transition: transform 0.45s cubic-bezier(0.34, 1.8, 0.64, 1),
                   box-shadow 0.35s ease,
                   background 0.25s ease,
                   border-color 0.25s ease,
                   color 0.25s ease;
       white-space: nowrap;
     }
+
     .btn-lang:hover {
       transform: scale(1.1) translateY(-3px);
       box-shadow: 0 10px 24px rgba(0,0,0,0.2);
-      border-color: rgba(50,166,154,0.8);
+      border-color: rgba(50, 166, 154, 0.8);
       color: #c9ecf4;
     }
+
     .btn-lang.active {
       background: var(--selected-color);
       border-color: var(--selected-color);
       color: #ffffff;
-      box-shadow: 0 0 14px rgba(13,198,212,0.5);
+      box-shadow: 0 0 14px rgba(13, 198, 212, 0.5);
     }
 
     /* ── CONCIERGE SECTION ── */
-    .concierge-section { margin-bottom: 14px; }
-    .concierge-label {
-      font-size: 10px; font-weight: 600; letter-spacing: 2px;
-      color: #8fcfda; text-transform: uppercase; margin-bottom: 8px;
+    .concierge-section {
+      margin-bottom: 14px;
     }
-    .concierge-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    .concierge-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      color: #8fcfda;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .concierge-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
 
     .btn-concierge {
       padding: 6px 12px;
-      border: 1.5px solid rgba(50,166,154,0.4);
+      border: 1.5px solid rgba(50, 166, 154, 0.4);
       border-radius: 8px;
-      background: rgba(24,79,91,0.4);
+      background: rgba(24, 79, 91, 0.4);
       color: #c9ecf4;
-      font-size: 11px; font-weight: 600; letter-spacing: 1px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
       cursor: pointer;
-      transition: transform 0.45s cubic-bezier(0.34,1.8,0.64,1),
+      transition: transform 0.45s cubic-bezier(0.34, 1.8, 0.64, 1),
                   box-shadow 0.35s ease,
                   background 0.25s ease,
                   border-color 0.25s ease,
                   color 0.25s ease;
       white-space: nowrap;
     }
+
     .btn-concierge:hover {
       transform: scale(1.1) translateY(-3px);
       box-shadow: 0 10px 24px rgba(0,0,0,0.2);
-      border-color: rgba(50,166,154,0.8);
+      border-color: rgba(50, 166, 154, 0.8);
     }
+
     .btn-concierge.selected {
       background: var(--selected-color);
       border-color: var(--selected-color);
       color: #ffffff;
-      box-shadow: 0 0 14px rgba(13,198,212,0.5);
+      box-shadow: 0 0 14px rgba(13, 198, 212, 0.5);
     }
 
     /* ── SORTABLE BOXES ── */
-    .sortable-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
-    .input-box {
-      background: #ffffff; border: 1.5px solid #ccc;
-      border-radius: 10px; padding: 12px 14px;
-      cursor: grab; transition: border-color 0.15s;
+    .sortable-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
     }
-    .input-box:active { cursor: grabbing; }
-    .input-box:hover { border-color: #bdbdbd; }
-    .sortable-chosen { border-color: var(--lindo-color) !important; box-shadow: 0 4px 16px rgba(50,166,154,0.2); }
+
+    .input-box {
+      background: #ffffff;
+      border: 1.5px solid #ccc;
+      border-radius: 10px;
+      padding: 12px 14px;
+      cursor: grab;
+      transition: border-color 0.15s;
+    }
+
+    .input-box:active {
+      cursor: grabbing;
+    }
+
+    .input-box:hover {
+      border-color: #bdbdbd;
+    }
+
+    .sortable-chosen {
+      border-color: var(--lindo-color) !important;
+      box-shadow: 0 4px 16px rgba(50, 166, 154, 0.2);
+    }
 
     .box-label {
-      font-size: 10px; font-weight: 600; letter-spacing: 2px;
-      color: #111; text-transform: uppercase; margin-bottom: 6px;
-      display: flex; align-items: center; gap: 6px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      color: #111111;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
-    .drag-handle { color: #444; font-size: 13px; cursor: grab; }
+
+    .drag-handle {
+      color: #444444;
+      font-size: 13px;
+      cursor: grab;
+    }
 
     .box-input {
-      width: 100%; background: #ffffff; border: 1.5px solid #ccc;
-      border-radius: 8px; color: #111;
-      font-family: 'Segoe UI',sans-serif; font-size: 13px;
-      padding: 10px 12px; outline: none; transition: border-color 0.15s;
+      width: 100%;
+      background: #ffffff;
+      border: 1.5px solid #ccc;
+      border-radius: 8px;
+      color: #111111;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 13px;
+      padding: 10px 12px;
+      outline: none;
+      transition: border-color 0.15s;
     }
-    .box-input:focus { border-color: var(--lindo-color); }
-    .box-input::placeholder { color: #666; font-style: italic; }
+
+    .box-input:focus {
+      border-color: var(--lindo-color);
+    }
+
+    .box-input::placeholder {
+      color: #666666;
+      font-style: italic;
+    }
 
     .box-textarea {
-      width: 100%; background: #ffffff; border: 1.5px solid #ccc;
-      border-radius: 8px; color: #111;
-      font-family: 'Segoe UI',sans-serif; font-size: 13px;
-      padding: 10px 12px; outline: none; resize: vertical;
-      transition: border-color 0.15s; line-height: 1.5;
+      width: 100%;
+      background: #ffffff;
+      border: 1.5px solid #ccc;
+      border-radius: 8px;
+      color: #111111;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 13px;
+      padding: 10px 12px;
+      outline: none;
+      resize: vertical;
+      transition: border-color 0.15s;
+      line-height: 1.5;
     }
-    .box-textarea:focus { border-color: var(--lindo-color); }
-    .box-textarea::placeholder { color: #666; font-style: italic; }
+
+    .box-textarea:focus {
+      border-color: var(--lindo-color);
+    }
+
+    .box-textarea::placeholder {
+      color: #666666;
+      font-style: italic;
+    }
 
     /* ── COPY BUTTON ── */
-    .btn-copy-wrap { display: flex; justify-content: center; }
-    .btn-copiar {
-      display: inline-block; padding: 14px 32px;
-      background: #184f5b; color: #ffffff; border: none;
-      border-radius: 12px; font-family: 'Segoe UI',sans-serif;
-      font-size: 15px; font-weight: 700; letter-spacing: 2px;
-      cursor: pointer;
-      transition: transform 0.45s cubic-bezier(0.34,1.8,0.64,1),
-                  background 0.3s ease, box-shadow 0.3s ease,
-                  padding 0.35s cubic-bezier(0.34,1.8,0.64,1);
-      white-space: nowrap; overflow: hidden;
+    .btn-copy-wrap {
+      display: flex;
+      justify-content: center;
     }
-    .btn-copiar:hover { transform: scale(1.04) translateY(-3px); box-shadow: 0 16px 36px rgba(0,0,0,0.2); }
-    .btn-copiar:active { transform: scale(0.98); }
+
+    .btn-copiar {
+      display: inline-block;
+      padding: 14px 32px;
+      background: #184f5b;
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: transform 0.45s cubic-bezier(0.34, 1.8, 0.64, 1),
+                  background 0.3s ease,
+                  box-shadow 0.3s ease,
+                  padding 0.35s cubic-bezier(0.34, 1.8, 0.64, 1);
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .btn-copiar:hover {
+      transform: scale(1.04) translateY(-3px);
+      box-shadow: 0 16px 36px rgba(0,0,0,0.2);
+    }
+
+    .btn-copiar:active {
+      transform: scale(0.98);
+    }
+
     .btn-copiar.copiado {
-      background: #00BFFF; padding: 14px 20px;
+      background: #00BFFF;
+      padding: 14px 20px;
       transform: scale(1.08) translateY(-2px);
-      box-shadow: 0 0 22px rgba(0,191,255,0.8), 0 0 50px rgba(0,191,255,0.5), 0 12px 24px rgba(0,191,255,0.35);
+      box-shadow: 0 0 22px rgba(0, 191, 255, 0.8), 0 0 50px rgba(0, 191, 255, 0.5), 0 12px 24px rgba(0, 191, 255, 0.35);
     }
   </style>
 </head>
 <body>
 
+  <!-- Background Slider -->
   <div class="bg-slider" id="bgSlider">
-    <div class="bg-slide active" style="background-image:url('https://lh3.googleusercontent.com/d/1yiLtxHlxCx_RoiZq3Dqo7cBQ8MJ04VhP')"></div>
-    <div class="bg-slide" style="background-image:url('https://lh3.googleusercontent.com/d/1xMkC2A9KbPMXq7s2RGBxIalDqk6FnCpk')"></div>
-    <div class="bg-slide" style="background-image:url('https://lh3.googleusercontent.com/d/1nHfPpQm9mM4OlzDkC7nLBoFDc6A7TaR2')"></div>
+    <div class="bg-slide active" style="background-image: url('https://lh3.googleusercontent.com/d/1yiLtxHlxCx_RoiZq3Dqo7cBQ8MJ04VhP')"></div>
+    <div class="bg-slide" style="background-image: url('https://lh3.googleusercontent.com/d/1xMkC2A9KbPMXq7s2RGBxIalDqk6FnCpk')"></div>
+    <div class="bg-slide" style="background-image: url('https://lh3.googleusercontent.com/d/1nHfPpQm9mM4OlzDkC7nLBoFDc6A7TaR2')"></div>
   </div>
   <div class="bg-overlay"></div>
 
+  <!-- Main Card -->
   <div class="main-wrapper">
     <div class="card">
 
+      <!-- Header -->
       <div class="card-header">
         <div class="card-title">SHOWS MAYA</div>
       </div>
 
-      <!-- Idiomas -->
-      <div class="lang-row" id="langRow">
+      <!-- Language Selector -->
+      <div class="lang-row">
         <button class="btn-lang active" data-lang="es">Español</button>
         <button class="btn-lang" data-lang="en">Inglés</button>
         <button class="btn-lang" data-lang="fr">Francés</button>
         <button class="btn-lang" data-lang="de">Alemán</button>
       </div>
 
-      <!-- Concierge -->
+      <!-- Concierge Buttons -->
       <div class="concierge-section">
         <div class="concierge-label">Selecciona tu nombre</div>
-        <div class="concierge-grid" id="conciergeGrid"></div>
+        <div class="concierge-grid" id="conciergeGrid">
+          <!-- botones generados por JS -->
+        </div>
       </div>
 
-      <!-- Inputs -->
+      <!-- Sortable Input Boxes -->
       <div class="sortable-list" id="sortableList">
 
         <div class="input-box" data-key="show">
-          <div class="box-label"><span class="drag-handle">⠿</span>Nombre del Show</div>
+          <div class="box-label">
+            <span class="drag-handle">⠿</span>
+            Nombre del Show
+          </div>
           <input class="box-input" id="inputShow" type="text" placeholder="Ej: 80's Show" autocomplete="off" />
         </div>
 
         <div class="input-box" data-key="lugar">
-          <div class="box-label"><span class="drag-handle">⠿</span>Lugar</div>
+          <div class="box-label">
+            <span class="drag-handle">⠿</span>
+            Lugar
+          </div>
           <input class="box-input" id="inputLugar" type="text" placeholder="Ej: el Teatro" autocomplete="off" />
         </div>
 
         <div class="input-box" data-key="hora">
-          <div class="box-label"><span class="drag-handle">⠿</span>Hora del Show</div>
+          <div class="box-label">
+            <span class="drag-handle">⠿</span>
+            Hora del Show
+          </div>
           <input class="box-input" id="inputHora" type="text" placeholder="Ej: 9:00 pm" autocomplete="off" />
         </div>
 
         <div class="input-box" data-key="actividades">
-          <div class="box-label"><span class="drag-handle">⠿</span>Actividades</div>
-          <textarea class="box-textarea" id="inputActividades" rows="6" placeholder="Pega aquí la lista de actividades…"></textarea>
+          <div class="box-label">
+            <span class="drag-handle">⠿</span>
+            Actividades
+          </div>
+          <textarea class="box-textarea" id="inputActividades" rows="6"
+            placeholder="Pega aquí la lista de actividades…"></textarea>
         </div>
 
       </div>
 
+      <!-- Copy Button -->
       <div class="btn-copy-wrap">
         <button class="btn-copiar" id="btnCopy">COPIAR MENSAJE</button>
       </div>
@@ -260,25 +428,25 @@
   <script>
     // ── REPRESENTANTES ──
     var representantes = [
-      { nombre: 'Montserrat Rangel',   etiqueta: 'MONTSERRAT' },
-      { nombre: 'Delfino Hernández',    etiqueta: 'DELFINO' },
-      { nombre: 'Edgar Madrid',         etiqueta: 'EDGAR' },
-      { nombre: 'Clara de la Cruz',     etiqueta: 'CLARA' },
-      { nombre: 'Emanuel Hernández',    etiqueta: 'EMANUEL' },
-      { nombre: 'Rosario Arriaga',      etiqueta: 'ROSARIO' },
-      { nombre: 'Angélica Rivera',      etiqueta: 'ANGÉLICA' },
-      { nombre: 'Daniel Martinez',      etiqueta: 'DANIEL' },
-      { nombre: 'Gustavo Bolaina',      etiqueta: 'GUSTAVO' },
-      { nombre: 'Arturo Mixcoatl',      etiqueta: 'ARTURO' },
-      { nombre: 'Alberto',              etiqueta: 'ALBERTO' },
-      { nombre: 'Gisela Zempoaltécatl', etiqueta: 'GISELA Z.' },
-      { nombre: 'Ethan López',          etiqueta: 'ETHAN' },
-      { nombre: 'Omar Alonso',          etiqueta: 'OMAR' },
-      { nombre: 'Gisela Monserrat',     etiqueta: 'GISELA M.' },
-      { nombre: 'Javier Carballo',      etiqueta: 'JAVIER' },
-      { nombre: 'Raúl Torres',          etiqueta: 'RAÚL' },
-      { nombre: 'Arlette Montaño',      etiqueta: 'ARLETTE' },
-      { nombre: 'Cynthia Turijan',      etiqueta: 'CYNTHIA' }
+      { nombre: 'Montserrat Rangel',      etiqueta: 'MONTSERRAT' },
+      { nombre: 'Delfino Hernández',       etiqueta: 'DELFINO' },
+      { nombre: 'Edgar Madrid',            etiqueta: 'EDGAR' },
+      { nombre: 'Clara de la Cruz',        etiqueta: 'CLARA' },
+      { nombre: 'Emanuel Hernández',       etiqueta: 'EMANUEL' },
+      { nombre: 'Rosario Arriaga',         etiqueta: 'ROSARIO' },
+      { nombre: 'Angélica Rivera',         etiqueta: 'ANGÉLICA' },
+      { nombre: 'Daniel Martinez',         etiqueta: 'DANIEL' },
+      { nombre: 'Gustavo Bolaina',         etiqueta: 'GUSTAVO' },
+      { nombre: 'Arturo Mixcoatl',         etiqueta: 'ARTURO' },
+      { nombre: 'Alberto',                 etiqueta: 'ALBERTO' },
+      { nombre: 'Gisela Zempoaltécatl',    etiqueta: 'GISELA Z.' },
+      { nombre: 'Ethan López',             etiqueta: 'ETHAN' },
+      { nombre: 'Omar Alonso',             etiqueta: 'OMAR' },
+      { nombre: 'Gisela Monserrat',        etiqueta: 'GISELA M.' },
+      { nombre: 'Javier Carballo',         etiqueta: 'JAVIER' },
+      { nombre: 'Raúl Torres',             etiqueta: 'RAÚL' },
+      { nombre: 'Arlette Montaño',         etiqueta: 'ARLETTE' },
+      { nombre: 'Cynthia Turijan',         etiqueta: 'CYNTHIA' }
     ];
 
     var nombreSeleccionado = '';
@@ -334,9 +502,8 @@
 
     cargarRepresentantes();
 
-    // ── IDIOMAS con rebote y glow igual que concierge ──
+    // ── LANGUAGE ── igual que concierge: glow, rebote, siempre uno activo
     var currentLang = 'es';
-
     document.querySelectorAll('.btn-lang').forEach(function(btn) {
       btn.addEventListener('click', function() {
         var prev = document.querySelector('.btn-lang.active');
@@ -367,70 +534,70 @@
     // ── TEMPLATES ──
     var templates = {
       es: function(nombre, show, lugar, hora, actividades, showUpper) {
-        return 'Estimado Hu\u00e9sped,\n\n' +
-          'Le saluda su concierge ' + nombre + ' del Departamento de Guest Service. ' +
-          'Esperamos que est\u00e9 disfrutando de su estancia.\n\n' +
-          'Le invitamos a nuestro show: ' + show + ' en ' + lugar + ' a las ' + hora + '. ' +
-          'Adem\u00e1s, tenemos una variedad de actividades programadas que tendr\u00e1n lugar en el Bar Kukulc\u00e1n:\n\n' +
-          actividades + '\n\n' +
-          '--------------------------------------------\n\n' +
-          'Actividad principal en ' + lugar + ' a las ' + hora + ':\n\n' +
-          '\u2022 ' + showUpper + '\n\n' +
-          'Ser\u00e1 un placer contar con su presencia en estos eventos exclusivos.\n\n' +
-          'Atentamente,\n' +
-          'Departamento de Guest Service.';
+        return "Estimado Hu\u00e9sped,\n\n" +
+          "Le saluda su concierge " + nombre + " del Departamento de Guest Service. " +
+          "Esperamos que est\u00e9 disfrutando de su estancia.\n\n" +
+          "Le invitamos a nuestro show: " + show + " en " + lugar + " a las " + hora + ". " +
+          "Adem\u00e1s, tenemos una variedad de actividades programadas que tendr\u00e1n lugar en el Bar Kukulc\u00e1n:\n\n" +
+          actividades + "\n\n" +
+          "--------------------------------------------\n\n" +
+          "Actividad principal en " + lugar + " a las " + hora + ":\n\n" +
+          "\u2022 " + showUpper + "\n\n" +
+          "Ser\u00e1 un placer contar con su presencia en estos eventos exclusivos.\n\n" +
+          "Atentamente,\n" +
+          "Departamento de Guest Service.";
       },
       en: function(nombre, show, lugar, hora, actividades, showUpper) {
-        return 'Dear Guest,\n\n' +
-          'This is your concierge ' + nombre + ' from the Guest Service Department. ' +
-          'We hope you are enjoying your stay.\n\n' +
-          'We would like to invite you to our show: ' + show + ' at ' + lugar + ' at ' + hora + '. ' +
-          'Additionally, we have a variety of activities scheduled at Bar Kukulc\u00e1n:\n\n' +
-          actividades + '\n\n' +
-          '--------------------------------------------\n\n' +
-          'Main activity at ' + lugar + ' at ' + hora + ':\n\n' +
-          '\u2022 ' + showUpper + '\n\n' +
-          'It will be a pleasure to have you at these exclusive events.\n\n' +
-          'Sincerely,\n' +
-          'Guest Service Department.';
+        return "Dear Guest,\n\n" +
+          "This is your concierge " + nombre + " from the Guest Service Department. " +
+          "We hope you are enjoying your stay.\n\n" +
+          "We would like to invite you to our show: " + show + " at " + lugar + " at " + hora + ". " +
+          "Additionally, we have a variety of activities scheduled at Bar Kukulc\u00e1n:\n\n" +
+          actividades + "\n\n" +
+          "--------------------------------------------\n\n" +
+          "Main activity at " + lugar + " at " + hora + ":\n\n" +
+          "\u2022 " + showUpper + "\n\n" +
+          "It will be a pleasure to have you at these exclusive events.\n\n" +
+          "Sincerely,\n" +
+          "Guest Service Department.";
       },
       fr: function(nombre, show, lugar, hora, actividades, showUpper) {
-        return 'Cher Client,\n\n' +
-          'Votre concierge ' + nombre + ' du D\u00e9partement Guest Service vous contacte. ' +
-          'Nous esp\u00e9rons que vous profitez pleinement de votre s\u00e9jour.\n\n' +
-          'Nous vous invitons \u00e0 notre show\u00a0: ' + show + ' au ' + lugar + ' \u00e0 ' + hora + '. ' +
-          'De plus, nous avons une vari\u00e9t\u00e9 d\'activit\u00e9s programm\u00e9es au Bar Kukulc\u00e1n\u00a0:\n\n' +
-          actividades + '\n\n' +
-          '--------------------------------------------\n\n' +
-          'Activit\u00e9 principale au ' + lugar + ' \u00e0 ' + hora + '\u00a0:\n\n' +
-          '\u2022 ' + showUpper + '\n\n' +
-          'Ce sera un plaisir de vous accueillir lors de ces \u00e9v\u00e9nements exclusifs.\n\n' +
-          'Cordialement,\n' +
-          'D\u00e9partement Guest Service.';
+        return "Cher Client,\n\n" +
+          "Votre concierge " + nombre + " du D\u00e9partement Guest Service vous contacte. " +
+          "Nous esp\u00e9rons que vous profitez pleinement de votre s\u00e9jour.\n\n" +
+          "Nous vous invitons \u00e0 notre show : " + show + " au " + lugar + " \u00e0 " + hora + ". " +
+          "De plus, nous avons une vari\u00e9t\u00e9 d'activit\u00e9s programm\u00e9es au Bar Kukulc\u00e1n :\n\n" +
+          actividades + "\n\n" +
+          "--------------------------------------------\n\n" +
+          "Activit\u00e9 principale au " + lugar + " \u00e0 " + hora + " :\n\n" +
+          "\u2022 " + showUpper + "\n\n" +
+          "Ce sera un plaisir de vous accueillir lors de ces \u00e9v\u00e9nements exclusifs.\n\n" +
+          "Cordialement,\n" +
+          "D\u00e9partement Guest Service.";
       },
       de: function(nombre, show, lugar, hora, actividades, showUpper) {
-        return 'Lieber Gast,\n\n' +
-          'Ihr Concierge ' + nombre + ' vom Guest Service Department meldet sich bei Ihnen. ' +
-          'Wir hoffen, dass Sie Ihren Aufenthalt genie\u00dfen.\n\n' +
-          'Wir m\u00f6chten Sie herzlich zu unserer Show einladen: ' + show + ' im ' + lugar + ' um ' + hora + '. ' +
-          'Au\u00dferdem haben wir eine Vielzahl von Aktivit\u00e4ten in der Bar Kukulc\u00e1n geplant:\n\n' +
-          actividades + '\n\n' +
-          '--------------------------------------------\n\n' +
-          'Hauptaktivit\u00e4t im ' + lugar + ' um ' + hora + ':\n\n' +
-          '\u2022 ' + showUpper + '\n\n' +
-          'Es wird uns eine Freude sein, Sie bei diesen exklusiven Veranstaltungen begr\u00fc\u00dfen zu d\u00fcrfen.\n\n' +
-          'Mit freundlichen Gr\u00fc\u00dfen,\n' +
-          'Guest Service Department.';
+        return "Lieber Gast,\n\n" +
+          "Ihr Concierge " + nombre + " vom Guest Service Department meldet sich bei Ihnen. " +
+          "Wir hoffen, dass Sie Ihren Aufenthalt genie\u00dfen.\n\n" +
+          "Wir m\u00f6chten Sie herzlich zu unserer Show einladen: " + show + " im " + lugar + " um " + hora + ". " +
+          "Au\u00dferdem haben wir eine Vielzahl von Aktivit\u00e4ten in der Bar Kukulc\u00e1n geplant:\n\n" +
+          actividades + "\n\n" +
+          "--------------------------------------------\n\n" +
+          "Hauptaktivit\u00e4t im " + lugar + " um " + hora + ":\n\n" +
+          "\u2022 " + showUpper + "\n\n" +
+          "Es wird uns eine Freude sein, Sie bei diesen exklusiven Veranstaltungen begr\u00fc\u00dfen zu d\u00fcrfen.\n\n" +
+          "Mit freundlichen Gr\u00fc\u00dfen,\n" +
+          "Guest Service Department.";
       }
     };
 
     // ── COPY BUTTON ──
     document.getElementById('btnCopy').addEventListener('click', function() {
-      var nombre      = nombreSeleccionado || '[nombre del concierge]';
-      var show        = document.getElementById('inputShow').value.trim()        || '[nombre del show]';
-      var lugar       = document.getElementById('inputLugar').value.trim()       || '[lugar]';
-      var hora        = document.getElementById('inputHora').value.trim()        || '[hora]';
-      var actRaw      = document.getElementById('inputActividades').value.trim() || '[actividades]';
+      var nombre    = nombreSeleccionado || '[nombre del concierge]';
+      var show      = document.getElementById('inputShow').value.trim()        || '[nombre del show]';
+      var lugar     = document.getElementById('inputLugar').value.trim()       || '[lugar]';
+      var hora      = document.getElementById('inputHora').value.trim()        || '[hora]';
+      var actRaw    = document.getElementById('inputActividades').value.trim() || '[actividades]';
       var actividades = agregarBullets(actRaw);
       var showUpper   = show.toUpperCase();
       var msg = templates[currentLang](nombre, show, lugar, hora, actividades, showUpper);
@@ -439,8 +606,11 @@
         mostrarCopiado(btn);
       }).catch(function() {
         var ta = document.createElement('textarea');
-        ta.value = msg; ta.style.position = 'fixed'; ta.style.opacity = '0';
-        document.body.appendChild(ta); ta.focus(); ta.select();
+        ta.value = msg;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus(); ta.select();
         try { document.execCommand('copy'); } catch(e) {}
         document.body.removeChild(ta);
         mostrarCopiado(btn);
@@ -461,7 +631,9 @@
 
     // ── SORTABLEJS ──
     Sortable.create(document.getElementById('sortableList'), {
-      animation: 150, handle: '.drag-handle', ghostClass: 'sortable-chosen'
+      animation: 150,
+      handle: '.drag-handle',
+      ghostClass: 'sortable-chosen'
     });
 
     // ── BACKGROUND SLIDER ──
