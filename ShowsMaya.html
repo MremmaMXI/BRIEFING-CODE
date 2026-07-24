@@ -394,7 +394,7 @@
             <span class="drag-handle">⠿</span>
             Lugar
           </div>
-          <input class="box-input" id="inputLugar" type="text" placeholder="Ej: el Teatro" autocomplete="off" />
+          <input class="box-input" id="inputLugar" type="text" placeholder="Ej: Teatro" autocomplete="off" />
         </div>
 
         <div class="input-box" data-key="hora">
@@ -494,22 +494,9 @@
       }
     }
 
-    function deseleccionarTodos() {
-      // Deseleccionar concierge
-      document.querySelectorAll('.btn-concierge.selected').forEach(function(b) { b.classList.remove('selected'); });
-      nombreSeleccionado = '';
-      // Deseleccionar idioma
-      document.querySelectorAll('.btn-lang.active').forEach(function(b) {
-        b.classList.remove('active');
-        b.style.transform = 'scale(1.0)';
-        setTimeout(function() { b.style.transform = ''; }, 10);
-      });
-      currentLang = 'es'; // mantener idioma funcional aunque no se vea seleccionado
-    }
-
     cargarRepresentantes();
 
-    // ── LANGUAGE ── arranca sin ninguno activo, se puede deseleccionar
+    // ── LANGUAGE ──
     var currentLang = 'es';
     document.querySelectorAll('.btn-lang').forEach(function(btn) {
       btn.addEventListener('click', function() {
@@ -520,9 +507,8 @@
           setTimeout(function() { prev.style.transform = ''; }, 10);
         }
         if (btn.classList.contains('active')) {
-          // deseleccionar si se vuelve a clickear el mismo
           btn.classList.remove('active');
-          currentLang = 'es'; // fallback silencioso
+          currentLang = 'es';
         } else {
           btn.classList.add('active');
           currentLang = btn.getAttribute('data-lang');
@@ -543,17 +529,60 @@
       }).join(' ');
     }
 
-    function conArticulo(lugar) {
-      var l = lugar.trim().toLowerCase();
-      var masculinos = ['teatro','bar','lobby','salon','salón','foro','escenario','palacio','jardin','jardín','restaurante','mirador','cenote'];
-      var femeninos  = ['playa','alberca','piscina','terraza','arena','palapa','laguna','selva','cascada','hacienda'];
-      for (var i = 0; i < masculinos.length; i++) {
-        if (l.indexOf(masculinos[i]) !== -1) return 'el ' + lugar.trim();
+    // ── LUGAR LOCALIZADO CON ARTÍCULO SEGÚN IDIOMA ──
+    var lugaresDict = {
+      'teatro':      { es: 'el Teatro',      en: 'the Theater',    fr: 'le Théâtre',    de: 'dem Theater'        },
+      'theater':     { es: 'el Teatro',      en: 'the Theater',    fr: 'le Théâtre',    de: 'dem Theater'        },
+      'theatre':     { es: 'el Teatro',      en: 'the Theater',    fr: 'le Théâtre',    de: 'dem Theater'        },
+      'playa':       { es: 'la Playa',       en: 'the Beach',      fr: 'la Plage',      de: 'dem Strand'         },
+      'beach':       { es: 'la Playa',       en: 'the Beach',      fr: 'la Plage',      de: 'dem Strand'         },
+      'alberca':     { es: 'la Alberca',     en: 'the Pool',       fr: 'la Piscine',    de: 'dem Pool'           },
+      'piscina':     { es: 'la Piscina',     en: 'the Pool',       fr: 'la Piscine',    de: 'dem Pool'           },
+      'pool':        { es: 'la Piscina',     en: 'the Pool',       fr: 'la Piscine',    de: 'dem Pool'           },
+      'lobby':       { es: 'el Lobby',       en: 'the Lobby',      fr: 'le Lobby',      de: 'der Lobby'          },
+      'bar':         { es: 'el Bar',         en: 'the Bar',        fr: 'le Bar',        de: 'der Bar'            },
+      'terraza':     { es: 'la Terraza',     en: 'the Terrace',    fr: 'la Terrasse',   de: 'der Terrasse'       },
+      'terrace':     { es: 'la Terraza',     en: 'the Terrace',    fr: 'la Terrasse',   de: 'der Terrasse'       },
+      'salon':       { es: 'el Salón',       en: 'the Hall',       fr: 'la Salle',      de: 'dem Saal'           },
+      'salón':       { es: 'el Salón',       en: 'the Hall',       fr: 'la Salle',      de: 'dem Saal'           },
+      'palapa':      { es: 'la Palapa',      en: 'the Palapa',     fr: 'la Palapa',     de: 'der Palapa'         },
+      'cenote':      { es: 'el Cenote',      en: 'the Cenote',     fr: 'le Cénote',     de: 'dem Cenote'         },
+      'jardin':      { es: 'el Jardín',      en: 'the Garden',     fr: 'le Jardin',     de: 'dem Garten'         },
+      'jardín':      { es: 'el Jardín',      en: 'the Garden',     fr: 'le Jardin',     de: 'dem Garten'         },
+      'garden':      { es: 'el Jardín',      en: 'the Garden',     fr: 'le Jardin',     de: 'dem Garten'         },
+      'escenario':   { es: 'el Escenario',   en: 'the Stage',      fr: 'la Scène',      de: 'der Bühne'          },
+      'stage':       { es: 'el Escenario',   en: 'the Stage',      fr: 'la Scène',      de: 'der Bühne'          },
+      'foro':        { es: 'el Foro',        en: 'the Forum',      fr: 'le Forum',      de: 'dem Forum'          },
+      'arena':       { es: 'la Arena',       en: 'the Arena',      fr: "l'Arène",       de: 'der Arena'          },
+      'laguna':      { es: 'la Laguna',      en: 'the Lagoon',     fr: 'la Lagune',     de: 'der Lagune'         },
+      'selva':       { es: 'la Selva',       en: 'the Jungle',     fr: 'la Jungle',     de: 'dem Dschungel'      },
+      'restaurante': { es: 'el Restaurante', en: 'the Restaurant', fr: 'le Restaurant', de: 'dem Restaurant'     },
+      'restaurant':  { es: 'el Restaurante', en: 'the Restaurant', fr: 'le Restaurant', de: 'dem Restaurant'     },
+      'mirador':     { es: 'el Mirador',     en: 'the Viewpoint',  fr: 'le Mirador',    de: 'dem Aussichtspunkt' },
+      'palacio':     { es: 'el Palacio',     en: 'the Palace',     fr: 'le Palais',     de: 'dem Palast'         },
+      'hacienda':    { es: 'la Hacienda',    en: 'the Hacienda',   fr: "l'Hacienda",    de: 'der Hacienda'       },
+      'cascada':     { es: 'la Cascada',     en: 'the Waterfall',  fr: 'la Cascade',    de: 'dem Wasserfall'     },
+    };
+
+    function conLugarLocalizado(lugarRaw, lang) {
+      var l = lugarRaw.trim().toLowerCase();
+      for (var clave in lugaresDict) {
+        if (l.indexOf(clave) !== -1) {
+          return lugaresDict[clave][lang] || lugaresDict[clave]['es'];
+        }
       }
-      for (var j = 0; j < femeninos.length; j++) {
-        if (l.indexOf(femeninos[j]) !== -1) return 'la ' + lugar.trim();
-      }
-      return lugar.trim();
+      // No reconocido: artículo genérico según idioma
+      var lugar = toTitleCase(lugarRaw.trim());
+      if (lang === 'en') return 'the ' + lugar;
+      if (lang === 'fr') return 'le ' + lugar;
+      if (lang === 'de') return 'dem ' + lugar;
+      return lugar;
+    }
+
+    function lugarUpperTraducido(lugarRaw, lang) {
+      var localizado = conLugarLocalizado(lugarRaw, lang);
+      // Quitar el artículo para la sección en mayúsculas
+      return localizado.replace(/^(el |la |the |le |l'|dem |der )/i, '').toUpperCase();
     }
 
     // ── BULLETS ──
@@ -588,7 +617,7 @@
 
     // ── TEMPLATES ──
     var templates = {
-      es: function(nombre, show, lugar, hora, actividades, showUpper, lugarUpper) {
+      es: function(nombre, show, lugar, hora, actividades, showUpper, lugarUp) {
         return "Estimado Hu\u00e9sped,\n\n" +
           "Le saluda su concierge " + nombre + " del Departamento de Guest Service. " +
           "Esperamos que est\u00e9 disfrutando de su estancia.\n\n" +
@@ -596,13 +625,13 @@
           "Adem\u00e1s, tenemos una variedad de actividades programadas que tendr\u00e1n lugar en el Bar Kukulc\u00e1n:\n\n" +
           actividades + "\n\n" +
           "--------------------------------------------\n\n" +
-          "Actividad principal en " + lugarUpper + " a las " + hora + ":\n\n" +
+          "Actividad principal en " + lugarUp + " a las " + hora + ":\n\n" +
           "\u2022 " + showUpper + "\n\n" +
           "Ser\u00e1 un placer contar con su presencia en estos eventos exclusivos.\n\n" +
           "Atentamente,\n" +
           "Departamento de Guest Service.";
       },
-      en: function(nombre, show, lugar, hora, actividades, showUpper, lugarUpper) {
+      en: function(nombre, show, lugar, hora, actividades, showUpper, lugarUp) {
         return "Dear Guest,\n\n" +
           "This is your concierge " + nombre + " from the Guest Service Department. " +
           "We hope you are enjoying your stay.\n\n" +
@@ -610,35 +639,35 @@
           "Additionally, we have a variety of activities scheduled at Bar Kukulc\u00e1n:\n\n" +
           actividades + "\n\n" +
           "--------------------------------------------\n\n" +
-          "Main activity at " + lugarUpper + " at " + hora + ":\n\n" +
+          "Main activity at " + lugarUp + " at " + hora + ":\n\n" +
           "\u2022 " + showUpper + "\n\n" +
           "It will be a pleasure to have you at these exclusive events.\n\n" +
           "Sincerely,\n" +
           "Guest Service Department.";
       },
-      fr: function(nombre, show, lugar, hora, actividades, showUpper, lugarUpper) {
+      fr: function(nombre, show, lugar, hora, actividades, showUpper, lugarUp) {
         return "Cher Client,\n\n" +
           "Votre concierge " + nombre + " du D\u00e9partement Guest Service vous contacte. " +
           "Nous esp\u00e9rons que vous profitez pleinement de votre s\u00e9jour.\n\n" +
-          "Nous vous invitons \u00e0 notre show : " + show + " au " + lugar + " \u00e0 " + hora + ". " +
+          "Nous vous invitons \u00e0 notre show : " + show + " \u00e0 " + lugar + " \u00e0 " + hora + ". " +
           "De plus, nous avons une vari\u00e9t\u00e9 d'activit\u00e9s programm\u00e9es au Bar Kukulc\u00e1n :\n\n" +
           actividades + "\n\n" +
           "--------------------------------------------\n\n" +
-          "Activit\u00e9 principale au " + lugarUpper + " \u00e0 " + hora + " :\n\n" +
+          "Activit\u00e9 principale \u00e0 " + lugarUp + " \u00e0 " + hora + " :\n\n" +
           "\u2022 " + showUpper + "\n\n" +
           "Ce sera un plaisir de vous accueillir lors de ces \u00e9v\u00e9nements exclusifs.\n\n" +
           "Cordialement,\n" +
           "D\u00e9partement Guest Service.";
       },
-      de: function(nombre, show, lugar, hora, actividades, showUpper, lugarUpper) {
+      de: function(nombre, show, lugar, hora, actividades, showUpper, lugarUp) {
         return "Lieber Gast,\n\n" +
           "Ihr Concierge " + nombre + " vom Guest Service Department meldet sich bei Ihnen. " +
           "Wir hoffen, dass Sie Ihren Aufenthalt genie\u00dfen.\n\n" +
-          "Wir m\u00f6chten Sie herzlich zu unserer Show einladen: " + show + " im " + lugar + " um " + hora + ". " +
+          "Wir m\u00f6chten Sie herzlich zu unserer Show einladen: " + show + " in " + lugar + " um " + hora + ". " +
           "Au\u00dferdem haben wir eine Vielzahl von Aktivit\u00e4ten in der Bar Kukulc\u00e1n geplant:\n\n" +
           actividades + "\n\n" +
           "--------------------------------------------\n\n" +
-          "Hauptaktivit\u00e4t im " + lugarUpper + " um " + hora + ":\n\n" +
+          "Hauptaktivit\u00e4t in " + lugarUp + " um " + hora + ":\n\n" +
           "\u2022 " + showUpper + "\n\n" +
           "Es wird uns eine Freude sein, Sie bei diesen exklusiven Veranstaltungen begr\u00fc\u00dfen zu d\u00fcrfen.\n\n" +
           "Mit freundlichen Gr\u00fc\u00dfen,\n" +
@@ -648,35 +677,64 @@
 
     // ── COPY BUTTON ──
     document.getElementById('btnCopy').addEventListener('click', function() {
-      var nombre    = nombreSeleccionado || '[nombre del concierge]';
-      var showRaw   = document.getElementById('inputShow').value.trim()        || '[nombre del show]';
-      var lugarRaw  = document.getElementById('inputLugar').value.trim()       || '[lugar]';
-      var hora      = document.getElementById('inputHora').value.trim()        || '[hora]';
-      var actRaw    = document.getElementById('inputActividades').value.trim() || '[actividades]';
+      var nombre      = nombreSeleccionado || '[nombre del concierge]';
+      var showRaw     = document.getElementById('inputShow').value.trim()        || '[nombre del show]';
+      var lugarRaw    = document.getElementById('inputLugar').value.trim()       || '[lugar]';
+      var hora        = document.getElementById('inputHora').value.trim()        || '[hora]';
+      var actRaw      = document.getElementById('inputActividades').value.trim() || '[actividades]';
       var actividades = agregarBullets(actRaw);
-      var show        = toTitleCase(showRaw);
-      var lugar       = conArticulo(toTitleCase(lugarRaw));
-      var showUpper   = showRaw.toUpperCase();
-      var lugarUpper  = lugarRaw.toUpperCase();
-      var msg = templates[currentLang](nombre, show, lugar, hora, actividades, showUpper, lugarUpper);
-      var btn = this;
-      navigator.clipboard.writeText(msg).then(function() {
-        mostrarCopiado(btn);
-      }).catch(function() {
-        var ta = document.createElement('textarea');
-        ta.value = msg;
-        ta.style.position = 'fixed';
-        ta.style.opacity = '0';
-        document.body.appendChild(ta);
-        ta.focus(); ta.select();
-        try { document.execCommand('copy'); } catch(e) {}
-        document.body.removeChild(ta);
-        mostrarCopiado(btn);
-      });
+      var lugar       = conLugarLocalizado(lugarRaw, currentLang);
+      var lugarUp     = lugarUpperTraducido(lugarRaw, currentLang);
+      var btn         = this;
+
+      function copiarMensaje(showTraducido) {
+        var showUp = showTraducido.toUpperCase();
+        var msg = templates[currentLang](nombre, showTraducido, lugar, hora, actividades, showUp, lugarUp);
+        navigator.clipboard.writeText(msg).then(function() {
+          mostrarCopiado(btn);
+        }).catch(function() {
+          var ta = document.createElement('textarea');
+          ta.value = msg;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.focus(); ta.select();
+          try { document.execCommand('copy'); } catch(e) {}
+          document.body.removeChild(ta);
+          mostrarCopiado(btn);
+        });
+      }
+
+      // Español: no necesita traducción
+      if (currentLang === 'es') {
+        copiarMensaje(toTitleCase(showRaw));
+        return;
+      }
+
+      // Otros idiomas: traducir show via servidor GS
+      btn.textContent = 'Traduciendo...';
+      btn.disabled = true;
+      try {
+        google.script.run
+          .withSuccessHandler(function(showTraducido) {
+            btn.disabled = false;
+            btn.textContent = 'COPIAR MENSAJE';
+            copiarMensaje(showTraducido || toTitleCase(showRaw));
+          })
+          .withFailureHandler(function() {
+            btn.disabled = false;
+            btn.textContent = 'COPIAR MENSAJE';
+            copiarMensaje(toTitleCase(showRaw));
+          })
+          .traducirShow(showRaw, currentLang);
+      } catch(e) {
+        btn.disabled = false;
+        btn.textContent = 'COPIAR MENSAJE';
+        copiarMensaje(toTitleCase(showRaw));
+      }
     });
 
     function mostrarCopiado(btn) {
-      deseleccionarTodos();
       btn.textContent = '\u00a1COPIADO!';
       btn.classList.add('copiado');
       setTimeout(function() {
