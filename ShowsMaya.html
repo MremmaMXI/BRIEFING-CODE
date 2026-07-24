@@ -532,17 +532,43 @@
       });
     });
 
+    // ── HELPERS ──
+    function quitarComillas(texto) {
+      var s = texto.trim();
+      if (s.charAt(0) === '"') s = s.substring(1);
+      if (s.charAt(s.length - 1) === '"') s = s.substring(0, s.length - 1);
+      return s;
+    }
+
     // ── BULLETS ──
     function agregarBullets(texto) {
-      return texto.split('\n').map(function(linea) {
+      // 1) Quitar comillas al inicio y al final (del copy-paste del archivo)
+      var limpio = quitarComillas(texto);
+
+      // 2) Dividir por salto de línea y agregar bullet
+      return limpio.split('\n').map(function(linea) {
         var l = linea.trim();
         if (!l) return '';
-        if (l.charAt(0) === '\u2022') return l;
+        // Quitar bullet previo si ya tenía (•, ·, -, *) junto con el espacio siguiente
+        l = l.replace(/^[\u2022\u00b7*-]\s*/, '');
         return '\u2022 ' + l;
-      }).filter(function(l, i, arr) {
-        return l !== '' || (i > 0 && arr[i-1] !== '');
-      }).join('\n');
+      }).filter(function(l) { return l !== ''; }).join('\n');
     }
+
+    // ── LIMPIAR COMILLAS AL PEGAR ──
+    document.getElementById('inputActividades').addEventListener('paste', function(e) {
+      e.preventDefault();
+      var pegado = (e.clipboardData || window.clipboardData).getData('text');
+      // Quitar comillas al inicio y al final
+      pegado = quitarComillas(pegado);
+      // Insertar el texto limpio en el textarea
+      var ta = this;
+      var start = ta.selectionStart;
+      var end = ta.selectionEnd;
+      var current = ta.value;
+      ta.value = current.substring(0, start) + pegado + current.substring(end);
+      ta.selectionStart = ta.selectionEnd = start + pegado.length;
+    });
 
     // ── TEMPLATES ──
     var templates = {
