@@ -2561,6 +2561,21 @@ function getMensajesWaves() {
   };
 }
 
+/**
+ * traducirActividades(texto, targetLang)
+ * Traduce la lista de actividades del español al idioma destino.
+ * Preserva el formato de bullets (•) línea por línea.
+ */
+function traducirActividades(texto, targetLang) {
+  try {
+    if (!texto || targetLang === 'es') return texto;
+    return LanguageApp.translate(texto, 'es', targetLang);
+  } catch(e) {
+    Logger.log('traducirActividades error: ' + e);
+    return texto;
+  }
+}
+
 function abrirMINIGOLF() {
   const url = 'https://script.google.com/a/macros/iberostar.com/s/AKfycbxk9bTHpkUNrLMfTzu9wp7d8ad29dPS0Cjwt25qXT9BGPXMEyig7hFatWsNuDcMUJX3Cw/exec';
   

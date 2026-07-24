@@ -682,12 +682,12 @@
       var lugarRaw    = document.getElementById('inputLugar').value.trim()       || '[lugar]';
       var hora        = document.getElementById('inputHora').value.trim()        || '[hora]';
       var actRaw      = document.getElementById('inputActividades').value.trim() || '[actividades]';
-      var actividades = agregarBullets(actRaw);
       var lugar       = conLugarLocalizado(lugarRaw, currentLang);
       var lugarUp     = lugarUpperTraducido(lugarRaw, currentLang);
       var btn         = this;
 
-      function copiarMensaje(showTraducido) {
+      function copiarMensaje(showTraducido, actividadesTraducidas) {
+        var actividades = agregarBullets(actividadesTraducidas);
         var showUp = showTraducido.toUpperCase();
         var msg = templates[currentLang](nombre, showTraducido, lugar, hora, actividades, showUp, lugarUp);
         navigator.clipboard.writeText(msg).then(function() {
@@ -707,30 +707,57 @@
 
       // Español: no necesita traducción
       if (currentLang === 'es') {
-        copiarMensaje(toTitleCase(showRaw));
+        copiarMensaje(toTitleCase(showRaw), actRaw);
         return;
       }
 
-      // Otros idiomas: traducir show via servidor GS
+      // Otros idiomas: traducir show Y actividades en paralelo via servidor GS
       btn.textContent = 'Traduciendo...';
       btn.disabled = true;
+
+      var TOTAL_OPERACIONES = 2;
+      var resultados = { show: null, actividades: null };
+      var completados = { show: false, actividades: false };
+      var pendientes = TOTAL_OPERACIONES;
+
+      function marcarCompleto(type, finalValue) {
+        if (completados[type]) return;
+        resultados[type] = finalValue;
+        completados[type] = true;
+        pendientes--;
+        if (pendientes !== 0) return;
+        btn.disabled = false;
+        btn.textContent = 'COPIAR MENSAJE';
+        copiarMensaje(
+          resultados.show        || toTitleCase(showRaw),
+          resultados.actividades || actRaw
+        );
+      }
+
       try {
         google.script.run
           .withSuccessHandler(function(showTraducido) {
-            btn.disabled = false;
-            btn.textContent = 'COPIAR MENSAJE';
-            copiarMensaje(showTraducido || toTitleCase(showRaw));
+            marcarCompleto('show', showTraducido || toTitleCase(showRaw));
           })
           .withFailureHandler(function() {
-            btn.disabled = false;
-            btn.textContent = 'COPIAR MENSAJE';
-            copiarMensaje(toTitleCase(showRaw));
+            marcarCompleto('show', toTitleCase(showRaw));
           })
           .traducirShow(showRaw, currentLang);
       } catch(e) {
-        btn.disabled = false;
-        btn.textContent = 'COPIAR MENSAJE';
-        copiarMensaje(toTitleCase(showRaw));
+        marcarCompleto('show', toTitleCase(showRaw));
+      }
+
+      try {
+        google.script.run
+          .withSuccessHandler(function(actividadesTraducidas) {
+            marcarCompleto('actividades', actividadesTraducidas || actRaw);
+          })
+          .withFailureHandler(function() {
+            marcarCompleto('actividades', actRaw);
+          })
+          .traducirActividades(actRaw, currentLang);
+      } catch(e) {
+        marcarCompleto('actividades', actRaw);
       }
     });
 
